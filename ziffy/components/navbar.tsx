@@ -17,14 +17,7 @@ export const NAVLINKS = [
     title: "Blog",
     href: "/blog",
   },
-  {
-    title: "Examples",
-    href: "#",
-  },
-  {
-    title: "Guides",
-    href: "#",
-  },
+ 
   {
     title: "Community",
     href: "https://github.com/nisabmohd/Aria-Docs/discussions",
@@ -79,7 +72,7 @@ export function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2.5">
       <CommandIcon className="w-6 h-6 text-muted-foreground" strokeWidth={2} />
-      <h2 className="text-md font-bold font-code">AriaDocs</h2>
+      <h2 className="text-md font-bold font-code">Ziffy</h2>
     </Link>
   );
 }

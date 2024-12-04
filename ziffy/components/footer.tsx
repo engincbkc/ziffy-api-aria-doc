@@ -12,24 +12,15 @@ export function Footer() {
             Build by{" "}
             <Link
               className="px-1 underline underline-offset-2"
-              href="https://github.com/nisabmohd"
+              href="https://github.com/ziffy"
             >
-              nisabmohd
-            </Link>
-            . The source code is available on{" "}
-            <Link
-              className="px-1 underline underline-offset-2"
-              href="https://github.com/nisabmohd/Aria-Docs"
-            >
-              GitHub
+              ziffy
             </Link>
             .
           </p>
         </div>
 
-        <div className="gap-4 items-center hidden md:flex">
-          <FooterButtons />
-        </div>
+       
       </div>
     </footer>
   );
