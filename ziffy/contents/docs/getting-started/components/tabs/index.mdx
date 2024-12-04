@@ -1,0 +1,98 @@
+---
+title: ReadQrLogo API
+description: This API fetches the logo associated with a user's wallet.
+---
+
+## Description
+
+This API allows you to retrieve a logo associated with a specific wallet. It fetches the logo data from a cache or, if not available, retrieves it from a media repository. The logo is then sent to the client.
+
+### Endpoint
+`POST /api/qr-logo`
+
+This endpoint will fetch the logo of the wallet linked to the current user's `WalletId` or `ApiKeySecretId`. If either of these values is missing, an error will be returned.
+
+---
+
+## Preview
+
+<Tabs defaultValue="javascript" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="jquery">jQuery</TabsTrigger>
+    <TabsTrigger value="javascript">JavaScript</TabsTrigger>
+    <TabsTrigger value="flutter">Flutter</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="jquery">
+    ### jQuery Implementation
+    ```javascript
+    $.ajax({
+      url: '/api/qr-logo',
+      method: 'POST',
+      success: function (data) {
+        // Handle the logo data
+        console.log(data);
+        // Use the logo data (e.g., display the logo image)
+        $('#logo').attr('src', data.logoBinary);
+      },
+      error: function (error) {
+        console.log('Error:', error);
+      }
+    });
+    ```
+  </TabsContent>
+
+  <TabsContent value="javascript">
+    ### JavaScript Implementation
+    ```javascript
+    fetch('/api/qr-logo', {
+      method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Handle the logo data
+      console.log(data);
+      // Use the logo data (e.g., display the logo image)
+      document.getElementById('logo').src = data.logoBinary;
+    })
+    .catch(error => console.error('Error:', error));
+    ```
+  </TabsContent>
+
+  <TabsContent value="flutter">
+    ### Flutter Implementation
+    ```dart
+    import 'package:http/http.dart' as http;
+    import 'dart:convert';
+
+    Future<void> getLogo() async {
+      final response = await http.post(Uri.parse('https://yourapi.com/api/qr-logo'));
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        // Use the logo data (e.g., display the logo image)
+        setState(() {
+          _logo = data['logoBinary'];
+        });
+      } else {
+        throw Exception('Failed to load logo');
+      }
+    }
+    ```
+  </TabsContent>
+</Tabs>
+
+---
+
+## Props
+
+| Prop            | Type     | Default    | Description                                                       |
+|-----------------|----------|------------|-------------------------------------------------------------------|
+| `defaultValue`  | `string` | `"null"`   | The default selected tab value.                                   |
+| `className`     | `string` | `""`       | Additional CSS classes for styling the component.                 |
+
+---
+
+### Error Handling
+
+If the `ApiKeySecretId` or `WalletId` is not available for the current user, the API will return a `UserFriendlyException` with the message `"Kullanıcı Bulunamadı"`. If the wallet is not found, the message `"Girdiğiniz bilgiye ait cüzdan bulunamadı."` will be returned.
