@@ -1,20 +1,30 @@
 ---
-title: ReadQrLogo API
-description: This API fetches the logo associated with a user's wallet.
+title: ReadQrLogo Hub Method
+description: This SignalR hub method retrieves the logo associated with a user's wallet.
 ---
 
 ## Description
 
-This API allows you to retrieve a logo associated with a specific wallet. It fetches the logo data from a cache or, if not available, retrieves it from a media repository. The logo is then sent to the client.
+This SignalR hub method fetches the logo associated with a user's wallet based on the `ApiKeySecretId` or `WalletId` claims of the current user. It first checks for the presence of these claims, retrieves the wallet information, and then fetches the logo from the media repository. If the logo is not available in the cache, it is fetched from the media repository and added to the cache for future use.
 
-### Endpoint
-`POST /api/qr-logo`
+The logo is then sent to the client connected to the SignalR hub.
 
-This endpoint will fetch the logo of the wallet linked to the current user's `WalletId` or `ApiKeySecretId`. If either of these values is missing, an error will be returned.
+### Hub Method: `ReadQrLogo`
+
+This method does the following:
+1. **Checks User Claims**: It verifies if the `ApiKeySecretId` or `WalletId` claims are present for the current user.
+2. **Fetches Wallet Information**: If the claims are present, it fetches the wallet associated with the user.
+3. **Retrieves Logo**: It fetches the logo picture from the media repository, either from the cache or by resizing the image if not available.
+4. **Sends Logo to Client**: Once the logo is retrieved, it is sent to the client using SignalR.
+
+The logo is returned as a `LogoDto` object containing:
+- `LogoName`: The name of the logo.
+- `Binary`: The binary data of the logo image.
+- `MIMEType`: The MIME type of the logo.
 
 ---
 
-## Preview
+## Example Client Implementations
 
 <Tabs defaultValue="javascript" className="pt-5 pb-1">
   <TabsList>
@@ -27,13 +37,13 @@ This endpoint will fetch the logo of the wallet linked to the current user's `Wa
     ### jQuery Implementation
     ```javascript
     $.ajax({
-      url: '/api/qr-logo',
+      url: '/yourSignalRHub',
       method: 'POST',
       success: function (data) {
         // Handle the logo data
         console.log(data);
-        // Use the logo data (e.g., display the logo image)
-        $('#logo').attr('src', data.logoBinary);
+        // Display the logo image
+        $('#logo').attr('src', 'data:' + data.MIMEType + ';base64,' + data.Binary);
       },
       error: function (error) {
         console.log('Error:', error);
@@ -45,15 +55,15 @@ This endpoint will fetch the logo of the wallet linked to the current user's `Wa
   <TabsContent value="javascript">
     ### JavaScript Implementation
     ```javascript
-    fetch('/api/qr-logo', {
+    fetch('/yourSignalRHub', {
       method: 'POST',
     })
     .then(response => response.json())
     .then(data => {
       // Handle the logo data
       console.log(data);
-      // Use the logo data (e.g., display the logo image)
-      document.getElementById('logo').src = data.logoBinary;
+      // Display the logo image
+      document.getElementById('logo').src = 'data:' + data.MIMEType + ';base64,' + data.Binary;
     })
     .catch(error => console.error('Error:', error));
     ```
@@ -66,13 +76,13 @@ This endpoint will fetch the logo of the wallet linked to the current user's `Wa
     import 'dart:convert';
 
     Future<void> getLogo() async {
-      final response = await http.post(Uri.parse('https://yourapi.com/api/qr-logo'));
+      final response = await http.post(Uri.parse('https://yourapi.com/yourSignalRHub'));
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         // Use the logo data (e.g., display the logo image)
         setState(() {
-          _logo = data['logoBinary'];
+          _logo = data['Binary'];
         });
       } else {
         throw Exception('Failed to load logo');
@@ -84,15 +94,16 @@ This endpoint will fetch the logo of the wallet linked to the current user's `Wa
 
 ---
 
-## Props
+## Error Handling
 
-| Prop            | Type     | Default    | Description                                                       |
-|-----------------|----------|------------|-------------------------------------------------------------------|
-| `defaultValue`  | `string` | `"null"`   | The default selected tab value.                                   |
-| `className`     | `string` | `""`       | Additional CSS classes for styling the component.                 |
+- If both the `ApiKeySecretId` and `WalletId` claims are missing, a `UserFriendlyException` is thrown with the message `"Kullanıcı Bulunamadı"`.
+- If no wallet is found for the provided `ApiKeySecretId` or `WalletId`, a `UserFriendlyException` is thrown with the message `"Girdiğiniz bilgiye ait cüzdan bulunamadı."`.
+- In case of any unexpected errors, a generic error message is returned with the appropriate HTTP status code.
 
 ---
 
-### Error Handling
+## Performance Logging
 
-If the `ApiKeySecretId` or `WalletId` is not available for the current user, the API will return a `UserFriendlyException` with the message `"Kullanıcı Bulunamadı"`. If the wallet is not found, the message `"Girdiğiniz bilgiye ait cüzdan bulunamadı."` will be returned.
+The method includes performance logging, tracking the time taken to fetch and send the logo to the client. This is useful for monitoring and optimizing the API's performance.
+
+Example log entry:
